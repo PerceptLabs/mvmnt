@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "api/reps": {
+      "runtime": "nodejs18.x"
+    },
+    "api/send": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "X_FIVECALLS_API_KEY": "@x-fivecalls_api_key",
+    "ELASTIC_EMAIL_API_KEY": "@elastic_email_api_key",
+    "SENDGRID_API_KEY": "@sendgrid_api_key",
+    "MAILGUN_API_KEY": "@mailgun_api_key"
+  }
+}
