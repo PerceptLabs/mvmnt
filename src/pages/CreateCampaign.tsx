@@ -1,6 +1,6 @@
 /**
  * Create Campaign Page - Redesigned
- * 
+ *
  * Beautiful campaign creation wizard with:
  * - Animated progress steps
  * - Category card selection with icons
@@ -79,9 +79,9 @@ type CampaignFormData = z.infer<typeof campaignSchema>;
 /**
  * Category configuration with icons and colors
  */
-const CATEGORIES: { 
-  value: CampaignCategory; 
-  label: string; 
+const CATEGORIES: {
+  value: CampaignCategory;
+  label: string;
   icon: any;
   color: string;
   bgGradient: string;
@@ -130,7 +130,7 @@ export default function CreateCampaign() {
   const { toast } = useToast();
   const { user } = useCurrentUser();
   const { mutate: createEvent, isPending: isPublishing } = useNostrPublish();
-  
+
   const [currentStep, setCurrentStep] = useState<CreateStep>('details');
   const [stakeEnabled, setStakeEnabled] = useState(false);
   const [isPublishingCampaign, setIsPublishingCampaign] = useState(false);
@@ -140,6 +140,7 @@ export default function CreateCampaign() {
     watch,
     setValue,
     trigger,
+    register,
     formState: { errors, isValid },
   } = useForm<CampaignFormData>({
     resolver: zodResolver(campaignSchema),
@@ -190,7 +191,7 @@ export default function CreateCampaign() {
   // Handle step navigation
   const goToNextStep = async () => {
     let valid = false;
-    
+
     if (currentStep === 'details') {
       valid = await trigger(['title', 'pitch', 'description', 'category', 'targetLevels']);
     } else if (currentStep === 'template') {
@@ -198,7 +199,7 @@ export default function CreateCampaign() {
     } else if (currentStep === 'review') {
       valid = isValid;
     }
-    
+
     if (valid) {
       const steps: CreateStep[] = ['details', 'template', 'stake', 'review'];
       const currentIndex = steps.indexOf(currentStep);
@@ -298,7 +299,7 @@ export default function CreateCampaign() {
               const Icon = step.icon;
               const isCompleted = index < currentStepIndex;
               const isCurrent = index === currentStepIndex;
-              
+
               return (
                 <motion.div
                   key={step.key}
@@ -398,8 +399,8 @@ export default function CreateCampaign() {
                               onClick={() => setValue('category', cat.value)}
                               className={`
                                 relative p-4 rounded-xl border-2 transition-all text-center
-                                ${formData.category === cat.value 
-                                  ? `border-transparent bg-gradient-to-br ${cat.bgGradient} text-white shadow-lg` 
+                                ${formData.category === cat.value
+                                  ? `border-transparent bg-gradient-to-br ${cat.bgGradient} text-white shadow-lg`
                                   : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                                 }
                               `}
@@ -597,8 +598,8 @@ Sincerely,
                       onClick={() => setStakeEnabled(!stakeEnabled)}
                       className={`
                         flex items-center gap-4 p-6 rounded-xl border-2 cursor-pointer transition-all
-                        ${stakeEnabled 
-                          ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/30' 
+                        ${stakeEnabled
+                          ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/30'
                           : 'border-slate-200 dark:border-slate-700 hover:border-slate-300'
                         }
                       `}
@@ -659,7 +660,7 @@ Sincerely,
 
                     {!stakeEnabled && (
                       <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800 text-sm text-muted-foreground">
-                        💡 You can skip this step and create your campaign without a stake. 
+                        💡 You can skip this step and create your campaign without a stake.
                         Campaigns with stakes may receive more trust from supporters.
                       </div>
                     )}
@@ -770,7 +771,7 @@ Sincerely,
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            
+
             {currentStep === 'review' ? (
               <Button
                 type="submit"
