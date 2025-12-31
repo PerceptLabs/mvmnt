@@ -316,27 +316,33 @@ function HeroSection() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-500" />
 
-        {/* Stars background */}
+        {/* Stars background - USA flag inspired subtle stars */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/20 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                opacity: [0.2, 0.8, 0.2],
-                scale: [0.8, 1.2, 0.8],
-              }}
-              transition={{
-                duration: 2 + Math.random() * 3,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
+          {[...Array(30)].map((_, i) => {
+            const size = Math.random() > 0.7 ? 'w-2 h-2' : 'w-1 h-1';
+            const opacity = Math.random() > 0.7 ? 'opacity-60' : 'opacity-30';
+            const hue = Math.random() > 0.8 ? 'bg-cyan-300' : Math.random() > 0.6 ? 'bg-white' : 'bg-blue-200';
+
+            return (
+              <motion.div
+                key={i}
+                className={`absolute rounded-full ${size} ${hue} ${opacity}`}
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  opacity: [opacity, opacity === 'opacity-60' ? 'opacity-80' : 'opacity-40', opacity],
+                  scale: [1, 1.2, 1],
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 4,
+                  repeat: Infinity,
+                  delay: Math.random() * 3,
+                }}
+              />
+            );
+          })}
         </div>
       </motion.div>
 
@@ -675,7 +681,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-b border-white/10">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
@@ -694,9 +700,7 @@ export default function Index() {
                   Create
                 </Button>
               </Link>
-              <div className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 cursor-pointer transition-colors">
-                <LoginArea className="max-w-48" />
-              </div>
+              <LoginArea className="max-w-60" />
             </div>
           </div>
         </div>
