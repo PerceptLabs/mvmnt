@@ -316,33 +316,69 @@ function HeroSection() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-500" />
 
-        {/* Stars background - USA flag inspired subtle stars */}
+        {/* Stars background - tessellated star pattern */}
         <div className="absolute inset-0">
-          {[...Array(30)].map((_, i) => {
-            const size = Math.random() > 0.7 ? 'w-2 h-2' : 'w-1 h-1';
-            const opacity = Math.random() > 0.7 ? 'opacity-60' : 'opacity-30';
-            const hue = Math.random() > 0.8 ? 'bg-cyan-300' : Math.random() > 0.6 ? 'bg-white' : 'bg-blue-200';
+          {/* Create a tessellated star pattern */}
+          {[-2, -1, 0, 1, 2, 3].map((col) =>
+            [0, 1, 2, 3, 4].map((row) => {
+              const x = 20 + col * 25;
+              const y = 15 + row * 25;
+              const rotation = (col + row) * 15;
+              const size = Math.random() > 0.5 ? 'w-6 h-6' : 'w-4 h-4';
+              const opacity = Math.random() > 0.7 ? 'opacity-15' : 'opacity-8';
 
-            return (
-              <motion.div
-                key={i}
-                className={`absolute rounded-full ${size} ${hue} ${opacity}`}
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                }}
-                animate={{
-                  opacity: [opacity, opacity === 'opacity-60' ? 'opacity-80' : 'opacity-40', opacity],
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 4,
-                  repeat: Infinity,
-                  delay: Math.random() * 3,
-                }}
-              />
-            );
-          })}
+              return (
+                <motion.div
+                  key={`star-${col}-${row}`}
+                  className={`absolute ${size} ${opacity}`}
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    transform: `rotate(${rotation}deg)`,
+                  }}
+                  animate={{
+                    opacity: [opacity, parseFloat(opacity.replace('opacity-', '')) + 5 > 20 ? 'opacity-25' : 'opacity-10', opacity],
+                    scale: [0.9, 1.1, 0.9],
+                  }}
+                  transition={{
+                    duration: 4 + Math.random() * 2,
+                    repeat: Infinity,
+                    delay: Math.random() * 2,
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </motion.div>
+              );
+            })
+          )}
+
+          {/* Additional scattered larger stars */}
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={`scatter-${i}`}
+              className={`absolute ${Math.random() > 0.5 ? 'w-8 h-8' : 'w-5 h-5'} opacity-6`}
+              style={{
+                left: `${10 + Math.random() * 80}%`,
+                top: `${5 + Math.random() * 90}%`,
+                transform: `rotate(${Math.random() * 360}deg)`,
+              }}
+              animate={{
+                opacity: ['opacity-6', 'opacity-12', 'opacity-6'],
+                scale: [0.95, 1.05, 0.95],
+              }}
+              transition={{
+                duration: 5 + Math.random() * 3,
+                repeat: Infinity,
+                delay: Math.random() * 4,
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </motion.div>
+          ))}
         </div>
       </motion.div>
 
