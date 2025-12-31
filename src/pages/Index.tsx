@@ -1,6 +1,6 @@
 /**
  * Campaign Feed Page - Redesigned
- * 
+ *
  * Dynamic, immersive civic engagement platform with:
  * - Animated hero section with civic imagery
  * - Campaign cards with category-specific theming
@@ -47,6 +47,13 @@ import {
   CAMPAIGN_KIND,
   type CampaignCategory,
 } from '@/types/nostr';
+import {
+  SAMPLE_CAMPAIGNS,
+  getNewCampaigns,
+  getHotCampaigns,
+  getTrendingCampaigns,
+  getUserByPubkey,
+} from '@/lib/sampleCampaigns';
 
 /**
  * Feed tab types
@@ -57,92 +64,92 @@ type FeedTab = 'trending' | 'hot' | 'new';
  * Category theme configuration
  */
 const CATEGORY_THEMES: Record<CampaignCategory, { color: string; bgGradient: string; icon: any; accent: string }> = {
-  environment: { 
-    color: 'text-emerald-700 dark:text-emerald-400', 
+  environment: {
+    color: 'text-emerald-700 dark:text-emerald-400',
     bgGradient: 'from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50',
     icon: Scale,
     accent: 'bg-emerald-500'
   },
-  healthcare: { 
-    color: 'text-rose-700 dark:text-rose-400', 
+  healthcare: {
+    color: 'text-rose-700 dark:text-rose-400',
     bgGradient: 'from-rose-50 to-red-50 dark:from-rose-950/50 dark:to-red-950/50',
     icon: Heart,
     accent: 'bg-rose-500'
   },
-  education: { 
-    color: 'text-blue-700 dark:text-blue-400', 
+  education: {
+    color: 'text-blue-700 dark:text-blue-400',
     bgGradient: 'from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50',
     icon: Zap,
     accent: 'bg-blue-500'
   },
-  civil_rights: { 
-    color: 'text-purple-700 dark:text-purple-400', 
+  civil_rights: {
+    color: 'text-purple-700 dark:text-purple-400',
     bgGradient: 'from-purple-50 to-violet-50 dark:from-purple-950/50 dark:to-violet-950/50',
     icon: Scale,
     accent: 'bg-purple-500'
   },
-  economy: { 
-    color: 'text-amber-700 dark:text-amber-400', 
+  economy: {
+    color: 'text-amber-700 dark:text-amber-400',
     bgGradient: 'from-amber-50 to-yellow-50 dark:from-amber-950/50 dark:to-yellow-950/50',
     icon: TrendingUp,
     accent: 'bg-amber-500'
   },
-  immigration: { 
-    color: 'text-orange-700 dark:text-orange-400', 
+  immigration: {
+    color: 'text-orange-700 dark:text-orange-400',
     bgGradient: 'from-orange-50 to-amber-50 dark:from-orange-950/50 dark:to-amber-950/50',
     icon: Building2,
     accent: 'bg-orange-500'
   },
-  gun_control: { 
-    color: 'text-red-700 dark:text-red-400', 
+  gun_control: {
+    color: 'text-red-700 dark:text-red-400',
     bgGradient: 'from-red-50 to-rose-50 dark:from-red-950/50 dark:to-rose-950/50',
     icon: AlertCircle,
     accent: 'bg-red-500'
   },
-  housing: { 
-    color: 'text-cyan-700 dark:text-cyan-400', 
+  housing: {
+    color: 'text-cyan-700 dark:text-cyan-400',
     bgGradient: 'from-cyan-50 to-sky-50 dark:from-cyan-950/50 dark:to-sky-950/50',
     icon: Building2,
     accent: 'bg-cyan-500'
   },
-  transportation: { 
-    color: 'text-indigo-700 dark:text-indigo-400', 
+  transportation: {
+    color: 'text-indigo-700 dark:text-indigo-400',
     bgGradient: 'from-indigo-50 to-blue-50 dark:from-indigo-950/50 dark:to-blue-950/50',
     icon: TrendingUp,
     accent: 'bg-indigo-500'
   },
-  technology: { 
-    color: 'text-violet-700 dark:text-violet-400', 
+  technology: {
+    color: 'text-violet-700 dark:text-violet-400',
     bgGradient: 'from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50',
     icon: Sparkles,
     accent: 'bg-violet-500'
   },
-  criminal_justice: { 
-    color: 'text-slate-700 dark:text-slate-400', 
+  criminal_justice: {
+    color: 'text-slate-700 dark:text-slate-400',
     bgGradient: 'from-slate-50 to-gray-50 dark:from-slate-950/50 dark:to-gray-950/50',
     icon: Scale,
     accent: 'bg-slate-500'
   },
-  election_reform: { 
-    color: 'text-amber-700 dark:text-amber-400', 
+  election_reform: {
+    color: 'text-amber-700 dark:text-amber-400',
     bgGradient: 'from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50',
     icon: Mic,
     accent: 'bg-amber-500'
   },
-  government_transparency: { 
-    color: 'text-teal-700 dark:text-teal-400', 
+  government_transparency: {
+    color: 'text-teal-700 dark:text-teal-400',
     bgGradient: 'from-teal-50 to-cyan-50 dark:from-teal-950/50 dark:to-cyan-950/50',
     icon: AlertCircle,
     accent: 'bg-teal-500'
   },
-  public_safety: { 
-    color: 'text-pink-700 dark:text-pink-400', 
+  public_safety: {
+    color: 'text-pink-700 dark:text-pink-400',
     bgGradient: 'from-pink-50 to-rose-50 dark:from-pink-950/50 dark:to-rose-950/50',
     icon: Heart,
     accent: 'bg-pink-500'
   },
-  community: { 
-    color: 'text-lime-700 dark:text-lime-400', 
+  community: {
+    color: 'text-lime-700 dark:text-lime-400',
     bgGradient: 'from-lime-50 to-green-50 dark:from-lime-950/50 dark:to-green-950/50',
     icon: Users,
     accent: 'bg-lime-500'
@@ -171,7 +178,7 @@ function CampaignCard({ campaign }: { campaign: CampaignEvent }) {
   const parsed = parseCampaign(campaign);
   const author = useAuthor(campaign.pubkey);
   const metadata = author.data?.metadata;
-  
+
   const primaryCategory = parsed.categories[0] || 'community';
   const theme = CATEGORY_THEMES[primaryCategory];
   const Icon = theme.icon;
@@ -188,7 +195,7 @@ function CampaignCard({ campaign }: { campaign: CampaignEvent }) {
         <Card className={`h-full overflow-hidden bg-gradient-to-br ${theme.bgGradient} border-0 shadow-lg hover:shadow-2xl transition-all duration-300 group`}>
           {/* Category header with icon */}
           <div className={`h-2 bg-gradient-to-r ${theme.accent} to-transparent`} />
-          
+
           <CardContent className="p-6 space-y-4">
             {/* Category badge & hot indicator */}
             <div className="flex items-center justify-between">
@@ -301,14 +308,14 @@ function HeroSection() {
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
       {/* Animated background elements */}
-      <motion.div 
+      <motion.div
         style={{ y, opacity }}
         className="absolute inset-0 overflow-hidden"
       >
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-500" />
-        
+
         {/* Grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </motion.div>
@@ -424,35 +431,47 @@ function CampaignFeed({ tab }: { tab: FeedTab }) {
   const { data: campaigns, isLoading, error } = useQuery({
     queryKey: ['campaigns', tab],
     queryFn: async ({ signal }) => {
-      const abortSignal = AbortSignal.any([signal, AbortSignal.timeout(5000)]);
-      
-      const events = await nostr.query(
-        [
-          {
-            kinds: [CAMPAIGN_KIND],
-            '#t': ['active'],
-            limit: 50,
-          },
-        ],
-        { signal: abortSignal }
-      );
+      const abortSignal = AbortSignal.any([signal, AbortSignal.timeout(3000)]);
 
-      const campaignEvents = events.filter(isCampaignEvent);
-      let sorted = [...campaignEvents];
+      try {
+        const events = await nostr.query(
+          [
+            {
+              kinds: [CAMPAIGN_KIND],
+              '#t': ['active'],
+              limit: 50,
+            },
+          ],
+          { signal: abortSignal }
+        );
 
-      if (tab === 'new') {
-        sorted.sort((a, b) => b.created_at - a.created_at);
-      } else if (tab === 'hot') {
-        sorted.sort((a, b) => b.created_at - a.created_at);
-      } else {
-        sorted.sort((a, b) => b.created_at - a.created_at);
+        const campaignEvents = events.filter(isCampaignEvent);
+        let sorted = [...campaignEvents];
+
+        if (tab === 'new') {
+          sorted.sort((a, b) => b.created_at - a.created_at);
+        } else if (tab === 'hot') {
+          sorted.sort((a, b) => b.created_at - a.created_at);
+        } else {
+          sorted.sort((a, b) => b.created_at - a.created_at);
+        }
+
+        return sorted;
+      } catch (e) {
+        // If Nostr query fails, return null to use sample data
+        console.log('Nostr query failed, using sample data');
+        return null;
       }
-
-      return sorted;
     },
     staleTime: 60000,
     refetchInterval: 120000,
+    retry: 1,
   });
+
+  // Use sample campaigns if Nostr is empty or failed
+  const displayCampaigns = campaigns && campaigns.length > 0
+    ? campaigns
+    : null;
 
   if (isLoading) {
     return (
@@ -464,26 +483,14 @@ function CampaignFeed({ tab }: { tab: FeedTab }) {
     );
   }
 
-  if (error || !campaigns || campaigns.length === 0) {
-    return (
-      <Card className="border-dashed bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <CardContent className="py-16 px-8 text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 flex items-center justify-center">
-            <Sparkles className="w-10 h-10 text-blue-500" />
-          </div>
-          <h3 className="text-xl font-semibold mb-2">No campaigns yet</h3>
-          <p className="text-muted-foreground max-w-sm mx-auto mb-6">
-            Be the first to create a campaign and start making a difference in your community!
-          </p>
-          <Link to="/campaigns/new">
-            <Button size="lg" className="bg-gradient-to-r from-blue-500 to-cyan-500">
-              <Plus className="w-5 h-5 mr-2" />
-              Create First Campaign
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
+  if (error || !displayCampaigns) {
+    // Use sample data when Nostr fails or returns empty
+    return <SampleCampaignFeed tab={tab} />;
+  }
+
+  if (displayCampaigns.length === 0) {
+    // Use sample data when no campaigns exist
+    return <SampleCampaignFeed tab={tab} />;
   }
 
   return (
@@ -494,12 +501,149 @@ function CampaignFeed({ tab }: { tab: FeedTab }) {
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
       <AnimatePresence mode="popLayout">
-        {campaigns.map((campaign) => (
+        {displayCampaigns.map((campaign) => (
           <CampaignCard key={campaign.id} campaign={campaign} />
         ))}
       </AnimatePresence>
     </motion.div>
   );
+}
+
+/**
+ * Sample campaign feed when Nostr is empty
+ */
+function SampleCampaignFeed({ tab }: { tab: FeedTab }) {
+  let sampleCampaigns = SAMPLE_CAMPAIGNS;
+
+  if (tab === 'new') {
+    sampleCampaigns = getNewCampaigns(9);
+  } else if (tab === 'hot') {
+    sampleCampaigns = getHotCampaigns(9);
+  } else {
+    sampleCampaigns = getTrendingCampaigns(9);
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      <AnimatePresence mode="popLayout">
+        {sampleCampaigns.map((campaign) => (
+          <SampleCampaignCard key={campaign.id} campaign={campaign} />
+        ))}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/**
+ * Sample campaign card component
+ */
+function SampleCampaignCard({ campaign }: { campaign: Campaign }) {
+  const user = getUserByPubkey(campaign.creatorPubkey);
+
+  const primaryCategory = campaign.categories[0] || 'community';
+  const theme = CATEGORY_THEMES[primaryCategory];
+  const Icon = theme.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -30 }}
+      whileHover={{ y: -5, scale: 1.02 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Link to={`/campaign/${campaign.id}`}>
+        <Card className={`h-full overflow-hidden bg-gradient-to-br ${theme.bgGradient} border-0 shadow-lg hover:shadow-2xl transition-all duration-300 group cursor-pointer`}>
+          {/* Category header with icon */}
+          <div className={`h-2 bg-gradient-to-r ${theme.accent} to-transparent`} />
+
+          <CardContent className="p-6 space-y-4">
+            {/* Category badge & hot indicator */}
+            <div className="flex items-center justify-between">
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 dark:bg-black/40 backdrop-blur-sm`}>
+                <Icon className={`w-4 h-4 ${theme.color}`} />
+                <span className={`text-sm font-medium ${theme.color} capitalize`}>
+                  {primaryCategory.replace('_', ' ')}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-orange-500">
+                <Flame className="w-4 h-4" />
+                <span className="text-xs font-medium">Hot</span>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-xl font-bold leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {campaign.title}
+            </h3>
+
+            {/* Pitch */}
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {campaign.description}
+            </p>
+
+            {/* Stats */}
+            <div className="flex items-center gap-4 py-3 border-t border-black/5 dark:border-white/5">
+              <div className="flex items-center gap-1.5">
+                <div className="p-1.5 rounded-full bg-white/60 dark:bg-black/40">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <span className="text-sm font-medium">{Math.floor(Math.random() * 5000) + 500}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="p-1.5 rounded-full bg-white/60 dark:bg-black/40">
+                  <Flame className="w-4 h-4 text-orange-500" />
+                </div>
+                <span className="text-sm font-medium">{Math.floor(Math.random() * 100) + 10}</span>
+              </div>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <div className="p-1.5 rounded-full bg-white/60 dark:bg-black/40">
+                  <Share2 className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <span className="text-sm font-medium">{Math.floor(Math.random() * 200) + 20}</span>
+              </div>
+            </div>
+
+            {/* Creator */}
+            <div className="flex items-center gap-3 pt-2">
+              <Avatar className="w-8 h-8 ring-2 ring-white/50 dark:ring-black/50">
+                <AvatarImage src={user.picture} alt={user.name} />
+                <AvatarFallback className={`text-xs ${theme.accent} text-white`}>
+                  {user.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm truncate">{user.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {formatRelativeTime(campaign.createdAt)}
+                </div>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    </motion.div>
+  );
+}
+
+/**
+ * Format relative time
+ */
+function formatRelativeTime(timestamp: number): string {
+  const now = Date.now() / 1000;
+  const diff = now - timestamp;
+
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(timestamp * 1000).toLocaleDateString();
 }
 
 /**
@@ -563,21 +707,21 @@ export default function Index() {
           >
             <div className="flex items-center justify-center mb-8">
               <TabsList className="grid w-full max-w-md grid-cols-3 p-1.5 bg-slate-100 dark:bg-slate-800">
-                <TabsTrigger 
-                  value="trending" 
+                <TabsTrigger
+                  value="trending"
                   className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm"
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Trending
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="hot"
                   className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm"
                 >
                   <Flame className="w-4 h-4 mr-2" />
                   Hot
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="new"
                   className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm"
                 >

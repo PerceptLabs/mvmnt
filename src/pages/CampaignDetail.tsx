@@ -1,6 +1,6 @@
 /**
  * Campaign Detail Page - Redesigned
- * 
+ *
  * Immersive campaign page with:
  * - Hero banner with gradient overlay
  * - Animated stats and social proof
@@ -61,6 +61,29 @@ import {
   type CampaignCategory,
 } from '@/types/nostr';
 import type { Representative } from '@/types/representative';
+import { SAMPLE_CAMPAIGNS } from '@/lib/sampleCampaigns';
+
+/**
+ * Convert sample campaign to Nostr event format
+ */
+function campaignEventFromSample(sample: typeof SAMPLE_CAMPAIGNS[0]): Partial<CampaignEvent> {
+  return {
+    kind: CAMPAIGN_KIND,
+    content: sample.description,
+    tags: [
+      ['d', sample.id],
+      ['title', sample.title],
+      ['category', sample.categories[0]],
+      ...sample.categories.slice(1).map(c => ['category', c] as const),
+      ...sample.targetLevels.map(t => ['target_level', t] as const),
+      ['created_at', sample.createdAt],
+      ['status', sample.status],
+      ['alt', `Campaign: ${sample.title}`],
+    ],
+    pubkey: sample.creatorPubkey,
+    created_at: sample.createdAt,
+  };
+}
 
 /**
  * Action flow steps
@@ -227,7 +250,7 @@ function ActionSteps({ currentStep }: { currentStep: ActionStep | null }) {
         const Icon = step.icon;
         const isCompleted = index < currentIndex;
         const isCurrent = index === currentIndex;
-        
+
         return (
           <motion.div
             key={step.key}
@@ -284,15 +307,38 @@ export default function CampaignDetail() {
     queryKey: ['campaign', campaignId],
     queryFn: async ({ signal }) => {
       if (!campaignId) throw new Error('Campaign ID required');
-      
-      const events = await nostr.query(
-        [{ kinds: [CAMPAIGN_KIND], '#d': [campaignId], limit: 1 }],
-        { signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]) }
-      );
 
-      const campaignEvent = events.find(isCampaignEvent);
-      if (!campaignEvent) throw new Error('Campaign not found');
-      return campaignEvent;
+      try {
+        const events = await nostr.query(
+          [{ kinds: [CAMPAIGN_KIND], '#d': [campaignId], limit: 1 }],
+          { signal: AbortSignal.any([signal, AbortSignal.timeout(3000)]) }
+        );
+
+        const campaignEvent = events.find(isCampaignEvent);
+        if (!campaignEvent) {
+          // Try sample campaigns
+          const sampleCampaign = SAMPLE_CAMPAIGNS.find(c => c.id === campaignId);
+          if (sampleCampaign) {
+            // Return a mock Nostr event format
+            return {
+              ...campaignEventFromSample(sampleCampaign),
+              id: sampleCampaign.eventId,
+            } as CampaignEvent;
+          }
+          throw new Error('Campaign not found');
+        }
+        return campaignEvent;
+      } catch (e) {
+        // Try sample campaigns as fallback
+        const sampleCampaign = SAMPLE_CAMPAIGNS.find(c => c.id === campaignId);
+        if (sampleCampaign) {
+          return {
+            ...campaignEventFromSample(sampleCampaign),
+            id: sampleCampaign.eventId,
+          } as CampaignEvent;
+        }
+        throw new Error('Campaign not found');
+      }
     },
     enabled: !!campaignId,
     staleTime: 60000,
@@ -386,7 +432,7 @@ Sincerely,
       <section className="relative min-h-[50vh] flex items-end bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
-        
+
         <div className="container mx-auto px-4 py-16 relative z-10">
           <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors">
             <ArrowLeft className="w-4 h-4" />
